@@ -1,0 +1,60 @@
+"done" = "完成";
+"tab.send" = "发送";
+"tab.history" = "历史";
+"tab.settings" = "设置";
+"tab.about" = "关于";
+
+"history.title" = "发送历史";
+"settings.title" = "设置";
+"about.title" = "关于";
+
+"section.vrchat_osc" = "VRChat OSC";
+"section.message" = "发送文字";
+
+"field.host.placeholder" = "IP 地址，例如 192.168.1.20";
+"field.port.placeholder" = "端口";
+"field.message.placeholder" = "输入要显示到 VRChat Chatbox 的文字";
+
+"connect" = "连接";
+"disconnect" = "断开";
+"send.to_vrchat" = "发送到 VRChat";
+
+"toast.sent" = "已发送";
+"toast.connect_first" = "请先连接 VRChat OSC";
+
+"history.empty.title" = "暂无发送历史";
+"history.empty.description" = "保留最近30条的发送记录";
+"history.clear" = "清空历史";
+"history.footer.send_immediately" = "点选历史记录会直接发送消息。";
+"history.footer.fill_message" = "点选历史记录会切回发送界面，并填入输入框。";
+
+"settings.auto_connect" = "启动时自动连接 OSC";
+"settings.auto_connect.footer" = "开启后，下次启动会使用上次成功连接时保存的 IP 和端口自动连接。";
+"settings.typing_indicator" = "输入时显示正在输入";
+"settings.typing_indicator.footer" = "开启后，在消息输入框中输入文字时会在 VRChat 显示正在输入提示。";
+"settings.live_preview" = "实时预览输入文字";
+"settings.live_preview.footer" = "开启后，在消息输入框中键入文字时会实时显示到 VRChat。";
+"settings.history_immediate" = "点击历史直接发送消息";
+"settings.history_immediate.footer" = "开启后，在发送历史中点选消息会直接发送";
+
+"about.description" = "通过 VRChat OSC 接口发送 Chatbox 文字消息。";
+"about.version.section" = "版本";
+"about.current_version" = "当前版本";
+"about.author.section" = "作者";
+
+"status.initial" = "输入 VRChat OSC 地址后连接。";
+"status.connecting" = "正在建立 OSC UDP 连接...";
+"status.disconnected" = "已断开连接。";
+"status.connected" = "OSC 已连接，可以发送文字。";
+"status.sent" = "已发送到 VRChat Chatbox。";
+
+"connection.disconnected" = "未连接";
+"connection.connecting" = "正在连接 %@";
+"connection.connected" = "已连接 %@";
+
+"error.empty_host" = "请输入 VRChat 所在设备的 IP 地址。";
+"error.invalid_port" = "请输入 1 到 65535 之间的端口号。";
+"error.empty_message" = "请输入要发送的文字。";
+"error.connect_first" = "请先连接 VRChat OSC。";
+"error.send_failed" = "发送失败：%@";
+"error.connection_failed" = "连接失败：%@";

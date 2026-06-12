@@ -1,0 +1,60 @@
+"done" = "Done";
+"tab.send" = "Send";
+"tab.history" = "History";
+"tab.settings" = "Settings";
+"tab.about" = "About";
+
+"history.title" = "Send History";
+"settings.title" = "Settings";
+"about.title" = "About";
+
+"section.vrchat_osc" = "VRChat OSC";
+"section.message" = "Message";
+
+"field.host.placeholder" = "IP address, e.g. 192.168.1.20";
+"field.port.placeholder" = "Port";
+"field.message.placeholder" = "Text to display in VRChat Chatbox";
+
+"connect" = "Connect";
+"disconnect" = "Disconnect";
+"send.to_vrchat" = "Send to VRChat";
+
+"toast.sent" = "Sent";
+"toast.connect_first" = "Connect to VRChat OSC first";
+
+"history.empty.title" = "No Send History";
+"history.empty.description" = "Keeps the 30 most recent sent messages";
+"history.clear" = "Clear History";
+"history.footer.send_immediately" = "Selecting a history item sends it immediately.";
+"history.footer.fill_message" = "Selecting a history item returns to the send screen and fills the message field.";
+
+"settings.auto_connect" = "Auto-connect to OSC on launch";
+"settings.auto_connect.footer" = "When enabled, the app will use the saved IP address and port from the last successful connection next time it launches.";
+"settings.typing_indicator" = "Show typing while entering text";
+"settings.typing_indicator.footer" = "When enabled, VRChat shows the typing indicator while you type in the message field.";
+"settings.live_preview" = "Live preview typed text";
+"settings.live_preview.footer" = "When enabled, text typed in the message field is displayed live in VRChat.";
+"settings.history_immediate" = "Send message when tapping history";
+"settings.history_immediate.footer" = "When enabled, selecting a message in send history sends it immediately.";
+
+"about.description" = "Send Chatbox text messages through the VRChat OSC interface.";
+"about.version.section" = "Version";
+"about.current_version" = "Current Version";
+"about.author.section" = "Author";
+
+"status.initial" = "Enter the VRChat OSC address, then connect.";
+"status.connecting" = "Creating OSC UDP connection...";
+"status.disconnected" = "Disconnected.";
+"status.connected" = "OSC is connected. You can send text.";
+"status.sent" = "Sent to VRChat Chatbox.";
+
+"connection.disconnected" = "Not Connected";
+"connection.connecting" = "Connecting %@";
+"connection.connected" = "Connected %@";
+
+"error.empty_host" = "Enter the IP address of the device running VRChat.";
+"error.invalid_port" = "Enter a port number between 1 and 65535.";
+"error.empty_message" = "Enter text to send.";
+"error.connect_first" = "Connect to VRChat OSC first.";
+"error.send_failed" = "Send failed: %@";
+"error.connection_failed" = "Connection failed: %@";

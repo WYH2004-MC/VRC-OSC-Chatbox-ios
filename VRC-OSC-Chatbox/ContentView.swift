@@ -21,41 +21,41 @@ struct ContentView: View {
                     .toolbar {
                         ToolbarItemGroup(placement: .keyboard) {
                             Spacer()
-                            Button("完成") {
+                            Button("done") {
                                 focusedField = nil
                             }
                         }
                     }
             }
             .tabItem {
-                Label("发送", systemImage: "paperplane.fill")
+                Label("tab.send", systemImage: "paperplane.fill")
             }
             .tag(AppTab.chatbox)
 
             NavigationStack {
                 historyList
-                    .navigationTitle("发送历史")
+                    .navigationTitle("history.title")
             }
             .tabItem {
-                Label("历史", systemImage: "clock.arrow.circlepath")
+                Label("tab.history", systemImage: "clock.arrow.circlepath")
             }
             .tag(AppTab.history)
 
             NavigationStack {
                 settingsView
-                    .navigationTitle("设置")
+                    .navigationTitle("settings.title")
             }
             .tabItem {
-                Label("设置", systemImage: "gearshape")
+                Label("tab.settings", systemImage: "gearshape")
             }
             .tag(AppTab.settings)
 
             NavigationStack {
                 aboutView
-                    .navigationTitle("关于")
+                    .navigationTitle("about.title")
             }
             .tabItem {
-                Label("关于", systemImage: "info.circle")
+                Label("tab.about", systemImage: "info.circle")
             }
             .tag(AppTab.about)
         }
@@ -91,14 +91,14 @@ struct ContentView: View {
 
     private var chatboxForm: some View {
         Form {
-            Section("VRChat OSC") {
-                TextField("IP 地址，例如 192.168.1.20", text: $viewModel.host)
+            Section("section.vrchat_osc") {
+                TextField("field.host.placeholder", text: $viewModel.host)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .keyboardType(.numbersAndPunctuation)
                     .focused($focusedField, equals: .host)
 
-                TextField("端口", text: $viewModel.port)
+                TextField("field.port.placeholder", text: $viewModel.port)
                     .keyboardType(.numberPad)
                     .focused($focusedField, equals: .port)
 
@@ -109,7 +109,7 @@ struct ContentView: View {
                     Spacer()
 
                     if viewModel.isConnected {
-                        Button("断开") {
+                        Button("disconnect") {
                             viewModel.disconnect()
                         }
                     } else {
@@ -117,25 +117,25 @@ struct ContentView: View {
                             focusedField = nil
                             viewModel.connect()
                         } label: {
-                            Text("连接")
+                            Text("connect")
                         }
                         .buttonStyle(.borderedProminent)
                     }
                 }
             }
 
-            Section("发送文字") {
-                TextField("输入要显示到 VRChat Chatbox 的文字", text: $viewModel.message, axis: .vertical)
+            Section("section.message") {
+                TextField("field.message.placeholder", text: $viewModel.message, axis: .vertical)
                     .lineLimit(3...6)
                     .focused($focusedField, equals: .message)
 
                 Button {
                     focusedField = nil
                     if viewModel.sendMessage() {
-                        showToast("已发送")
+                        showToast("toast.sent")
                     }
                 } label: {
-                    Label("发送到 VRChat", systemImage: "paperplane.fill")
+                    Label("send.to_vrchat", systemImage: "paperplane.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -153,22 +153,22 @@ struct ContentView: View {
         Form {
             if viewModel.sendHistory.isEmpty {
                 ContentUnavailableView(
-                    "暂无发送历史",
+                    "history.empty.title",
                     systemImage: "clock",
-                    description: Text("保留最近30条的发送记录")
+                    description: Text("history.empty.description")
                 )
             } else {
                 Section {
                     ForEach(viewModel.sendHistory, id: \.self) { historyItem in
                         Button {
                             guard !viewModel.sendHistoryImmediatelyEnabled || viewModel.isConnected else {
-                                showToast("请先连接 VRChat OSC")
+                                showToast("toast.connect_first")
                                 return
                             }
 
                             let didSendMessage = viewModel.handleHistorySelection(historyItem)
                             if didSendMessage {
-                                showToast("已发送")
+                                showToast("toast.sent")
                             } else {
                                 selectedTab = .chatbox
                             }
@@ -193,7 +193,7 @@ struct ContentView: View {
                     Button(role: .destructive) {
                         viewModel.clearHistory()
                     } label: {
-                        Label("清空历史", systemImage: "trash")
+                        Label("history.clear", systemImage: "trash")
                     }
                 } footer: {
                     Text(historyFooterText)
@@ -205,45 +205,46 @@ struct ContentView: View {
     private var settingsView: some View {
         Form {
             Section {
-                Toggle("启动时自动连接 OSC", isOn: $viewModel.autoConnectOnLaunch)
+                Toggle("settings.auto_connect", isOn: $viewModel.autoConnectOnLaunch)
             } footer: {
-                Text("开启后，下次启动会使用上次成功连接时保存的 IP 和端口自动连接。")
+                Text("settings.auto_connect.footer")
             }
 
             Section {
-                Toggle("输入时显示正在输入", isOn: $viewModel.sendTypingIndicatorEnabled)
+                Toggle("settings.typing_indicator", isOn: $viewModel.sendTypingIndicatorEnabled)
             } footer: {
-                Text("开启后，在消息输入框中输入文字时会在 VRChat 显示正在输入提示。")
+                Text("settings.typing_indicator.footer")
             }
 
             Section {
-                Toggle("实时预览输入文字", isOn: $viewModel.livePreviewEnabled)
+                Toggle("settings.live_preview", isOn: $viewModel.livePreviewEnabled)
             } footer: {
-                Text("开启后，在消息输入框中键入文字时会实时显示到 VRChat。")
+                Text("settings.live_preview.footer")
             }
 
             Section {
-                Toggle("点击历史直接发送消息", isOn: $viewModel.sendHistoryImmediatelyEnabled)
+                Toggle("settings.history_immediate", isOn: $viewModel.sendHistoryImmediatelyEnabled)
             } footer: {
-                Text("开启后，在发送历史中点选消息会直接发送")
+                Text("settings.history_immediate.footer")
             }
         }
     }
 
     private var historyFooterText: String {
         if viewModel.sendHistoryImmediatelyEnabled {
-            "点选历史记录会直接发送消息。"
+            L10n.text("history.footer.send_immediately")
         } else {
-            "点选历史记录会切回发送界面，并填入输入框。"
+            L10n.text("history.footer.fill_message")
         }
     }
 
-    private func showToast(_ message: String) {
-        toastMessage = message
+    private func showToast(_ key: String.LocalizationValue) {
+        let localizedMessage = L10n.text(key)
+        toastMessage = localizedMessage
 
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(2))
-            if toastMessage == message {
+            if toastMessage == localizedMessage {
                 toastMessage = nil
             }
         }
@@ -261,7 +262,7 @@ struct ContentView: View {
                         .font(.title2)
                         .fontWeight(.semibold)
 
-                    Text("通过 VRChat OSC 接口发送 Chatbox 文字消息。")
+                    Text("about.description")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -270,12 +271,12 @@ struct ContentView: View {
                 .padding(.vertical, 12)
             }
 
-            Section("版本") {
-                LabeledContent("当前版本", value: appVersionText)
+            Section("about.version.section") {
+                LabeledContent("about.current_version", value: appVersionText)
                 LabeledContent("Bundle ID", value: bundleIdentifier)
             }
 
-            Section("作者") {
+            Section("about.author.section") {
                 Link(destination: githubProfileURL) {
                     HStack(spacing: 16) {
                         AsyncImage(url: githubAvatarURL) { image in

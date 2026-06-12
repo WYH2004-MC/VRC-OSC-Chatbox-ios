@@ -29,9 +29,9 @@ extension OSCEndpoint {
         var errorDescription: String? {
             switch self {
             case .emptyHost:
-                "请输入 VRChat 所在设备的 IP 地址。"
+                L10n.text("error.empty_host")
             case .invalidPort:
-                "请输入 1 到 65535 之间的端口号。"
+                L10n.text("error.invalid_port")
             }
         }
     }

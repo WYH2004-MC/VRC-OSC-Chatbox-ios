@@ -1,0 +1,60 @@
+"done" = "完成";
+"tab.send" = "傳送";
+"tab.history" = "記錄";
+"tab.settings" = "設定";
+"tab.about" = "關於";
+
+"history.title" = "傳送記錄";
+"settings.title" = "設定";
+"about.title" = "關於";
+
+"section.vrchat_osc" = "VRChat OSC";
+"section.message" = "傳送文字";
+
+"field.host.placeholder" = "IP 位址，例如 192.168.1.20";
+"field.port.placeholder" = "連接埠";
+"field.message.placeholder" = "輸入要顯示到 VRChat Chatbox 的文字";
+
+"connect" = "連線";
+"disconnect" = "中斷連線";
+"send.to_vrchat" = "傳送到 VRChat";
+
+"toast.sent" = "已傳送";
+"toast.connect_first" = "請先連線到 VRChat OSC";
+
+"history.empty.title" = "尚無傳送記錄";
+"history.empty.description" = "保留最近 30 筆傳送記錄";
+"history.clear" = "清除記錄";
+"history.footer.send_immediately" = "點選歷史記錄會直接傳送訊息。";
+"history.footer.fill_message" = "點選歷史記錄會切回傳送頁面，並填入輸入框。";
+
+"settings.auto_connect" = "啟動時自動連線 OSC";
+"settings.auto_connect.footer" = "開啟後，下次啟動會使用上次成功連線時儲存的 IP 和連接埠自動連線。";
+"settings.typing_indicator" = "輸入時顯示正在輸入";
+"settings.typing_indicator.footer" = "開啟後，在訊息輸入框中輸入文字時會在 VRChat 顯示正在輸入提示。";
+"settings.live_preview" = "即時預覽輸入文字";
+"settings.live_preview.footer" = "開啟後，在訊息輸入框中鍵入文字時會即時顯示到 VRChat。";
+"settings.history_immediate" = "點擊記錄直接傳送訊息";
+"settings.history_immediate.footer" = "開啟後，在傳送記錄中點選訊息會直接傳送";
+
+"about.description" = "透過 VRChat OSC 介面傳送 Chatbox 文字訊息。";
+"about.version.section" = "版本";
+"about.current_version" = "目前版本";
+"about.author.section" = "作者";
+
+"status.initial" = "輸入 VRChat OSC 位址後連線。";
+"status.connecting" = "正在建立 OSC UDP 連線...";
+"status.disconnected" = "已中斷連線。";
+"status.connected" = "OSC 已連線，可以傳送文字。";
+"status.sent" = "已傳送到 VRChat Chatbox。";
+
+"connection.disconnected" = "未連線";
+"connection.connecting" = "正在連線 %@";
+"connection.connected" = "已連線 %@";
+
+"error.empty_host" = "請輸入 VRChat 所在裝置的 IP 位址。";
+"error.invalid_port" = "請輸入 1 到 65535 之間的連接埠號。";
+"error.empty_message" = "請輸入要傳送的文字。";
+"error.connect_first" = "請先連線到 VRChat OSC。";
+"error.send_failed" = "傳送失敗：%@";
+"error.connection_failed" = "連線失敗：%@";

@@ -1,0 +1,60 @@
+"done" = "完了";
+"tab.send" = "送信";
+"tab.history" = "履歴";
+"tab.settings" = "設定";
+"tab.about" = "情報";
+
+"history.title" = "送信履歴";
+"settings.title" = "設定";
+"about.title" = "情報";
+
+"section.vrchat_osc" = "VRChat OSC";
+"section.message" = "メッセージ";
+
+"field.host.placeholder" = "IP アドレス（例: 192.168.1.20）";
+"field.port.placeholder" = "ポート";
+"field.message.placeholder" = "VRChat Chatbox に表示するテキスト";
+
+"connect" = "接続";
+"disconnect" = "切断";
+"send.to_vrchat" = "VRChat に送信";
+
+"toast.sent" = "送信しました";
+"toast.connect_first" = "先に VRChat OSC に接続してください";
+
+"history.empty.title" = "送信履歴はありません";
+"history.empty.description" = "直近 30 件の送信メッセージを保存します";
+"history.clear" = "履歴を消去";
+"history.footer.send_immediately" = "履歴項目を選択すると、すぐにメッセージを送信します。";
+"history.footer.fill_message" = "履歴項目を選択すると送信画面に戻り、入力欄に反映します。";
+
+"settings.auto_connect" = "起動時に OSC へ自動接続";
+"settings.auto_connect.footer" = "有効にすると、次回起動時に前回成功した接続の IP アドレスとポートで自動接続します。";
+"settings.typing_indicator" = "入力中インジケーターを表示";
+"settings.typing_indicator.footer" = "有効にすると、メッセージ入力中に VRChat で入力中インジケーターを表示します。";
+"settings.live_preview" = "入力テキストをライブプレビュー";
+"settings.live_preview.footer" = "有効にすると、メッセージ欄に入力したテキストを VRChat にリアルタイム表示します。";
+"settings.history_immediate" = "履歴をタップして即送信";
+"settings.history_immediate.footer" = "有効にすると、送信履歴のメッセージを選択した時点で送信します。";
+
+"about.description" = "VRChat OSC インターフェイス経由で Chatbox のテキストメッセージを送信します。";
+"about.version.section" = "バージョン";
+"about.current_version" = "現在のバージョン";
+"about.author.section" = "作者";
+
+"status.initial" = "VRChat OSC アドレスを入力して接続してください。";
+"status.connecting" = "OSC UDP 接続を作成中...";
+"status.disconnected" = "切断しました。";
+"status.connected" = "OSC に接続しました。テキストを送信できます。";
+"status.sent" = "VRChat Chatbox に送信しました。";
+
+"connection.disconnected" = "未接続";
+"connection.connecting" = "%@ に接続中";
+"connection.connected" = "%@ に接続済み";
+
+"error.empty_host" = "VRChat を実行しているデバイスの IP アドレスを入力してください。";
+"error.invalid_port" = "1 から 65535 までのポート番号を入力してください。";
+"error.empty_message" = "送信するテキストを入力してください。";
+"error.connect_first" = "先に VRChat OSC に接続してください。";
+"error.send_failed" = "送信に失敗しました: %@";
+"error.connection_failed" = "接続に失敗しました: %@";

@@ -6,7 +6,7 @@ final class ChatboxViewModel: ObservableObject {
     @Published var host = ""
     @Published var port = "9000"
     @Published var message = ""
-    @Published var sendStatus = "输入 VRChat OSC 地址后连接。"
+    @Published var sendStatus = L10n.text("status.initial")
     @Published var autoConnectOnLaunch = false {
         didSet {
             userDefaults.set(autoConnectOnLaunch, forKey: autoConnectOnLaunchKey)
@@ -93,7 +93,7 @@ final class ChatboxViewModel: ObservableObject {
             host = endpoint.host
             port = String(endpoint.port)
             saveConnectionParameters(endpoint)
-            sendStatus = "正在建立 OSC UDP 连接..."
+            sendStatus = L10n.text("status.connecting")
             isTypingIndicatorActive = false
             lastPreviewedMessage = nil
             client.connect(to: endpoint)
@@ -106,19 +106,19 @@ final class ChatboxViewModel: ObservableObject {
         updateTypingIndicator(isMessageFieldFocused: false)
         lastPreviewedMessage = nil
         client.disconnect()
-        sendStatus = "已断开连接。"
+        sendStatus = L10n.text("status.disconnected")
     }
 
     @discardableResult
     func sendMessage() -> Bool {
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedMessage.isEmpty else {
-            sendStatus = "请输入要发送的文字。"
+            sendStatus = L10n.text("error.empty_message")
             return false
         }
 
         guard isConnected else {
-            sendStatus = "请先连接 VRChat OSC。"
+            sendStatus = L10n.text("error.connect_first")
             return false
         }
 
@@ -126,7 +126,7 @@ final class ChatboxViewModel: ObservableObject {
         updateTypingIndicator(isMessageFieldFocused: false)
         lastPreviewedMessage = nil
         recordSentMessage(trimmedMessage)
-        sendStatus = "已发送到 VRChat Chatbox。"
+        sendStatus = L10n.text("status.sent")
         message = ""
         return true
     }
@@ -197,16 +197,16 @@ final class ChatboxViewModel: ObservableObject {
     private func syncSendStatus(with connectionState: OSCChatboxClient.ConnectionState) {
         switch connectionState {
         case .connecting:
-            sendStatus = "正在建立 OSC UDP 连接..."
+            sendStatus = L10n.text("status.connecting")
         case .connected:
-            if sendStatus == "正在建立 OSC UDP 连接..." {
-                sendStatus = "OSC 已连接，可以发送文字。"
+            if sendStatus == L10n.text("status.connecting") {
+                sendStatus = L10n.text("status.connected")
             }
         case .failed(let message):
             sendStatus = message
         case .disconnected:
-            if sendStatus == "正在建立 OSC UDP 连接..." {
-                sendStatus = "已断开连接。"
+            if sendStatus == L10n.text("status.connecting") {
+                sendStatus = L10n.text("status.disconnected")
             }
         }
     }

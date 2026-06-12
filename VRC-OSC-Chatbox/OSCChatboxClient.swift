@@ -21,11 +21,11 @@ final class OSCChatboxClient: ObservableObject {
         var statusText: String {
             switch self {
             case .disconnected:
-                "未连接"
+                L10n.text("connection.disconnected")
             case .connecting(let endpoint):
-                "正在连接 \(endpoint)"
+                L10n.text("connection.connecting", endpoint)
             case .connected(let endpoint):
-                "已连接 \(endpoint)"
+                L10n.text("connection.connected", endpoint)
             case .failed(let message):
                 message
             }
@@ -73,12 +73,12 @@ final class OSCChatboxClient: ObservableObject {
     func sendChatboxMessage(_ message: String) {
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedMessage.isEmpty else {
-            connectionState = .failed("请输入要发送的文字。")
+            connectionState = .failed(L10n.text("error.empty_message"))
             return
         }
 
         guard connectionState.isConnected else {
-            connectionState = .failed("请先连接 VRChat OSC。")
+            connectionState = .failed(L10n.text("error.connect_first"))
             return
         }
 
@@ -111,7 +111,7 @@ final class OSCChatboxClient: ObservableObject {
 
     private func send(_ payload: Data) {
         guard let connection, connectionState.isConnected else {
-            connectionState = .failed("请先连接 VRChat OSC。")
+            connectionState = .failed(L10n.text("error.connect_first"))
             return
         }
 
@@ -122,7 +122,7 @@ final class OSCChatboxClient: ObservableObject {
                 }
 
                 if let error {
-                    self.connectionState = .failed("发送失败：\(error.localizedDescription)")
+                    self.connectionState = .failed(L10n.text("error.send_failed", error.localizedDescription))
                 } else {
                     self.connectionState = .connected(self.endpointDescription)
                 }
@@ -135,7 +135,7 @@ final class OSCChatboxClient: ObservableObject {
         case .ready:
             connectionState = .connected(endpointDescription)
         case .failed(let error):
-            connectionState = .failed("连接失败：\(error.localizedDescription)")
+            connectionState = .failed(L10n.text("error.connection_failed", error.localizedDescription))
             connection?.cancel()
             connection = nil
         case .cancelled:
