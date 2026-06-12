@@ -159,4 +159,17 @@ struct VRC_OSC_ChatboxTests {
         #expect(userDefaults.bool(forKey: "livePreviewEnabled") == true)
     }
 
+    @MainActor
+    @Test func sendHistoryImmediatelySettingDefaultsToOffAndPersistsChanges() {
+        let userDefaults = UserDefaults(suiteName: "sendHistoryImmediatelySettingDefaultsToOffAndPersistsChanges")!
+        userDefaults.removePersistentDomain(forName: "sendHistoryImmediatelySettingDefaultsToOffAndPersistsChanges")
+        let viewModel = ChatboxViewModel(userDefaults: userDefaults)
+
+        #expect(viewModel.sendHistoryImmediatelyEnabled == false)
+
+        viewModel.sendHistoryImmediatelyEnabled = true
+
+        #expect(userDefaults.bool(forKey: "sendHistoryImmediatelyEnabled") == true)
+    }
+
 }

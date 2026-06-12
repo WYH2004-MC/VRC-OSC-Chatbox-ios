@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var viewModel = ChatboxViewModel()
     @State private var selectedTab: AppTab = .chatbox
+    @State private var toastMessage: String?
     @FocusState private var focusedField: Field?
 
     var body: some View {
@@ -73,6 +74,19 @@ struct ContentView: View {
                 viewModel.updateLivePreview(isMessageFieldFocused: false)
             }
         }
+        .overlay(alignment: .top) {
+            if let toastMessage {
+                Text(toastMessage)
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(.black.opacity(0.82), in: Capsule())
+                    .padding(.top, 12)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: toastMessage)
     }
 
     private var chatboxForm: some View {
@@ -117,7 +131,9 @@ struct ContentView: View {
 
                 Button {
                     focusedField = nil
-                    viewModel.sendMessage()
+                    if viewModel.sendMessage() {
+                        showToast("已发送")
+                    }
                 } label: {
                     Label("发送到 VRChat", systemImage: "paperplane.fill")
                         .frame(maxWidth: .infinity)
@@ -145,8 +161,17 @@ struct ContentView: View {
                 Section {
                     ForEach(viewModel.sendHistory, id: \.self) { historyItem in
                         Button {
-                            viewModel.useHistoryItem(historyItem)
-                            selectedTab = .chatbox
+                            guard !viewModel.sendHistoryImmediatelyEnabled || viewModel.isConnected else {
+                                showToast("请先连接 VRChat OSC")
+                                return
+                            }
+
+                            let didSendMessage = viewModel.handleHistorySelection(historyItem)
+                            if didSendMessage {
+                                showToast("已发送")
+                            } else {
+                                selectedTab = .chatbox
+                            }
                         } label: {
                             HStack(spacing: 12) {
                                 Image(systemName: "text.bubble")
@@ -158,7 +183,7 @@ struct ContentView: View {
 
                                 Spacer()
 
-                                Image(systemName: "arrow.uturn.left")
+                                Image(systemName: viewModel.sendHistoryImmediatelyEnabled ? "paperplane" : "arrow.uturn.left")
                                     .font(.caption)
                                     .foregroundStyle(.tertiary)
                             }
@@ -171,7 +196,7 @@ struct ContentView: View {
                         Label("清空历史", systemImage: "trash")
                     }
                 } footer: {
-                    Text("点选历史记录会切回发送界面，并填入输入框。")
+                    Text(historyFooterText)
                 }
             }
         }
@@ -194,7 +219,32 @@ struct ContentView: View {
             Section {
                 Toggle("实时预览输入文字", isOn: $viewModel.livePreviewEnabled)
             } footer: {
-                Text("开启后，在消息输入框中键入文字时会实时显示到 VRChat，不会调出游戏内输入框，也不会作为已发送消息记录。")
+                Text("开启后，在消息输入框中键入文字时会实时显示到 VRChat。")
+            }
+
+            Section {
+                Toggle("点击历史直接发送消息", isOn: $viewModel.sendHistoryImmediatelyEnabled)
+            } footer: {
+                Text("开启后，在发送历史中点选消息会直接发送")
+            }
+        }
+    }
+
+    private var historyFooterText: String {
+        if viewModel.sendHistoryImmediatelyEnabled {
+            "点选历史记录会直接发送消息。"
+        } else {
+            "点选历史记录会切回发送界面，并填入输入框。"
+        }
+    }
+
+    private func showToast(_ message: String) {
+        toastMessage = message
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            if toastMessage == message {
+                toastMessage = nil
             }
         }
     }

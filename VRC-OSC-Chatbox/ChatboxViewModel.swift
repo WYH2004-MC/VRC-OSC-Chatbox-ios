@@ -30,6 +30,11 @@ final class ChatboxViewModel: ObservableObject {
             }
         }
     }
+    @Published var sendHistoryImmediatelyEnabled = false {
+        didSet {
+            userDefaults.set(sendHistoryImmediatelyEnabled, forKey: sendHistoryImmediatelyEnabledKey)
+        }
+    }
     @Published private(set) var sendHistory: [String] = []
     @Published private(set) var client = OSCChatboxClient()
 
@@ -40,6 +45,7 @@ final class ChatboxViewModel: ObservableObject {
     private let autoConnectOnLaunchKey = "autoConnectOnLaunch"
     private let sendTypingIndicatorEnabledKey = "sendTypingIndicatorEnabled"
     private let livePreviewEnabledKey = "livePreviewEnabled"
+    private let sendHistoryImmediatelyEnabledKey = "sendHistoryImmediatelyEnabled"
     private let userDefaults: UserDefaults
     private var isTypingIndicatorActive = false
     private var lastPreviewedMessage: String?
@@ -52,6 +58,7 @@ final class ChatboxViewModel: ObservableObject {
         autoConnectOnLaunch = userDefaults.bool(forKey: autoConnectOnLaunchKey)
         sendTypingIndicatorEnabled = userDefaults.object(forKey: sendTypingIndicatorEnabledKey) as? Bool ?? true
         livePreviewEnabled = userDefaults.bool(forKey: livePreviewEnabledKey)
+        sendHistoryImmediatelyEnabled = userDefaults.bool(forKey: sendHistoryImmediatelyEnabledKey)
         sendHistory = Array(userDefaults.stringArray(forKey: sendHistoryKey)?.prefix(sendHistoryLimit) ?? [])
 
         client.objectWillChange
@@ -102,16 +109,17 @@ final class ChatboxViewModel: ObservableObject {
         sendStatus = "已断开连接。"
     }
 
-    func sendMessage() {
+    @discardableResult
+    func sendMessage() -> Bool {
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedMessage.isEmpty else {
             sendStatus = "请输入要发送的文字。"
-            return
+            return false
         }
 
         guard isConnected else {
             sendStatus = "请先连接 VRChat OSC。"
-            return
+            return false
         }
 
         client.sendChatboxMessage(trimmedMessage)
@@ -120,10 +128,21 @@ final class ChatboxViewModel: ObservableObject {
         recordSentMessage(trimmedMessage)
         sendStatus = "已发送到 VRChat Chatbox。"
         message = ""
+        return true
     }
 
     func useHistoryItem(_ historyItem: String) {
         message = historyItem
+    }
+
+    func handleHistorySelection(_ historyItem: String) -> Bool {
+        guard sendHistoryImmediatelyEnabled else {
+            useHistoryItem(historyItem)
+            return false
+        }
+
+        message = historyItem
+        return sendMessage()
     }
 
     func updateTypingIndicator(isMessageFieldFocused: Bool) {
