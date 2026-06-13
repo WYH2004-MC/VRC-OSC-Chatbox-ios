@@ -18,6 +18,20 @@
 "connect" = "接続";
 "disconnect" = "切断";
 "send.to_vrchat" = "VRChat に送信";
+"dictation.enter" = "ディクテーションモード";
+"dictation.exit" = "終了";
+"dictation.current_result" = "現在の認識結果";
+"dictation.no_result" = "聞き取り中...";
+"dictation.send_records" = "送信記録";
+"dictation.no_records" = "認識して VRChat に送信した内容がここに表示されます。";
+"dictation.status.ready" = "準備完了";
+"dictation.status.listening" = "聞き取りながら VRChat に送信中";
+"dictation.status.restarting" = "音声認識を再起動中...";
+"dictation.status.stopped" = "停止しました";
+"dictation.error.speech_permission" = "音声認識の許可が必要です。";
+"dictation.error.microphone_permission" = "マイクの許可が必要です。";
+"dictation.error.unavailable" = "音声認識は一時的に利用できません。";
+"dictation.error.start_failed" = "ディクテーションを開始できません: %@";
 
 "toast.sent" = "送信しました";
 "toast.connect_first" = "先に VRChat OSC に接続してください";
@@ -28,6 +42,9 @@
 "history.footer.send_immediately" = "履歴項目を選択すると、すぐにメッセージを送信します。";
 "history.footer.fill_message" = "履歴項目を選択すると送信画面に戻り、入力欄に反映します。";
 
+"settings.osc.section" = "OSC 設定";
+"settings.message.section" = "メッセージ設定";
+"settings.dictation.section" = "ディクテーション設定";
 "settings.auto_connect" = "起動時に OSC へ自動接続";
 "settings.auto_connect.footer" = "有効にすると、次回起動時に前回成功した接続の IP アドレスとポートで自動接続します。";
 "settings.typing_indicator" = "入力中インジケーターを表示";
@@ -36,6 +53,10 @@
 "settings.live_preview.footer" = "有効にすると、メッセージ欄に入力したテキストを VRChat にリアルタイム表示します。";
 "settings.history_immediate" = "履歴をタップして即送信";
 "settings.history_immediate.footer" = "有効にすると、送信履歴のメッセージを選択した時点で送信します。";
+"settings.message.footer" = "手動送信、ライブプレビュー、入力中表示、履歴の動作を設定します。";
+"settings.dictation_delay" = "送信遅延";
+"settings.dictation_delay.value" = "%.1f 秒";
+"settings.dictation_delay.footer" = "認識テキストとマイク入力の両方がこの時間だけ静かになった後、ディクテーション結果が送信されます。";
 
 "about.description" = "VRChat OSC インターフェイス経由で Chatbox のテキストメッセージを送信します。";
 "about.version.section" = "バージョン";

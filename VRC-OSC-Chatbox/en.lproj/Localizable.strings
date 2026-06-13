@@ -18,6 +18,20 @@
 "connect" = "Connect";
 "disconnect" = "Disconnect";
 "send.to_vrchat" = "Send to VRChat";
+"dictation.enter" = "Dictation Mode";
+"dictation.exit" = "Exit";
+"dictation.current_result" = "Current Recognition";
+"dictation.no_result" = "Listening...";
+"dictation.send_records" = "Send Records";
+"dictation.no_records" = "Recognized text sent to VRChat will appear here.";
+"dictation.status.ready" = "Ready";
+"dictation.status.listening" = "Listening and sending to VRChat";
+"dictation.status.restarting" = "Restarting speech recognition...";
+"dictation.status.stopped" = "Stopped";
+"dictation.error.speech_permission" = "Speech recognition permission is required.";
+"dictation.error.microphone_permission" = "Microphone permission is required.";
+"dictation.error.unavailable" = "Speech recognition is temporarily unavailable.";
+"dictation.error.start_failed" = "Could not start dictation: %@";
 
 "toast.sent" = "Sent";
 "toast.connect_first" = "Connect to VRChat OSC first";
@@ -28,6 +42,9 @@
 "history.footer.send_immediately" = "Selecting a history item sends it immediately.";
 "history.footer.fill_message" = "Selecting a history item returns to the send screen and fills the message field.";
 
+"settings.osc.section" = "OSC Settings";
+"settings.message.section" = "Message Settings";
+"settings.dictation.section" = "Dictation Settings";
 "settings.auto_connect" = "Auto-connect to OSC on launch";
 "settings.auto_connect.footer" = "When enabled, the app will use the saved IP address and port from the last successful connection next time it launches.";
 "settings.typing_indicator" = "Show typing while entering text";
@@ -36,6 +53,10 @@
 "settings.live_preview.footer" = "When enabled, text typed in the message field is displayed live in VRChat.";
 "settings.history_immediate" = "Send message when tapping history";
 "settings.history_immediate.footer" = "When enabled, selecting a message in send history sends it immediately.";
+"settings.message.footer" = "Controls manual sending, live preview, typing status, and history behavior.";
+"settings.dictation_delay" = "Send delay";
+"settings.dictation_delay.value" = "%.1f sec";
+"settings.dictation_delay.footer" = "Dictation results send after both recognition text and microphone input stay quiet for this duration.";
 
 "about.description" = "Send Chatbox text messages through the VRChat OSC interface.";
 "about.version.section" = "Version";

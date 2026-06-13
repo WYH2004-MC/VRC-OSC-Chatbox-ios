@@ -35,6 +35,11 @@ final class ChatboxViewModel: ObservableObject {
             userDefaults.set(sendHistoryImmediatelyEnabled, forKey: sendHistoryImmediatelyEnabledKey)
         }
     }
+    @Published var dictationSendDelay = 1.0 {
+        didSet {
+            userDefaults.set(Self.clampedDictationSendDelay(dictationSendDelay), forKey: dictationSendDelayKey)
+        }
+    }
     @Published private(set) var sendHistory: [String] = []
     @Published private(set) var client = OSCChatboxClient()
 
@@ -46,6 +51,7 @@ final class ChatboxViewModel: ObservableObject {
     private let sendTypingIndicatorEnabledKey = "sendTypingIndicatorEnabled"
     private let livePreviewEnabledKey = "livePreviewEnabled"
     private let sendHistoryImmediatelyEnabledKey = "sendHistoryImmediatelyEnabled"
+    private let dictationSendDelayKey = "dictationSendDelay"
     private let userDefaults: UserDefaults
     private var isTypingIndicatorActive = false
     private var lastPreviewedMessage: String?
@@ -59,6 +65,9 @@ final class ChatboxViewModel: ObservableObject {
         sendTypingIndicatorEnabled = userDefaults.object(forKey: sendTypingIndicatorEnabledKey) as? Bool ?? true
         livePreviewEnabled = userDefaults.bool(forKey: livePreviewEnabledKey)
         sendHistoryImmediatelyEnabled = userDefaults.bool(forKey: sendHistoryImmediatelyEnabledKey)
+        dictationSendDelay = Self.clampedDictationSendDelay(
+            userDefaults.object(forKey: dictationSendDelayKey) as? Double ?? 1.0
+        )
         sendHistory = Array(userDefaults.stringArray(forKey: sendHistoryKey)?.prefix(sendHistoryLimit) ?? [])
 
         client.objectWillChange
@@ -128,6 +137,24 @@ final class ChatboxViewModel: ObservableObject {
         recordSentMessage(trimmedMessage)
         sendStatus = L10n.text("status.sent")
         message = ""
+        return true
+    }
+
+    @discardableResult
+    func sendTransientMessage(_ message: String, playNotificationSound: Bool = false) -> Bool {
+        let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedMessage.isEmpty else {
+            sendStatus = L10n.text("error.empty_message")
+            return false
+        }
+
+        guard isConnected else {
+            sendStatus = L10n.text("error.connect_first")
+            return false
+        }
+
+        client.sendChatboxMessage(trimmedMessage, playNotificationSound: playNotificationSound)
+        sendStatus = L10n.text("status.sent")
         return true
     }
 
@@ -214,5 +241,9 @@ final class ChatboxViewModel: ObservableObject {
     private func saveConnectionParameters(_ endpoint: OSCEndpoint) {
         userDefaults.set(endpoint.host, forKey: savedHostKey)
         userDefaults.set(String(endpoint.port), forKey: savedPortKey)
+    }
+
+    private static func clampedDictationSendDelay(_ delay: Double) -> Double {
+        min(max(delay, 0.4), 3.0)
     }
 }

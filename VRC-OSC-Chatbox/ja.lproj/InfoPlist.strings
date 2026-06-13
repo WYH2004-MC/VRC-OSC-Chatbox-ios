@@ -1,1 +1,3 @@
 "NSLocalNetworkUsageDescription" = "VRChat OSC インターフェイスに接続し、Chatbox メッセージを送信するために使用します。";
+"NSMicrophoneUsageDescription" = "音声を聞き取り、認識した Chatbox テキストを VRChat に送信するために使用します。";
+"NSSpeechRecognitionUsageDescription" = "音声を VRChat Chatbox メッセージ用のテキストに変換するために使用します。";

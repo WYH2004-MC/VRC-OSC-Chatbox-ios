@@ -70,7 +70,7 @@ final class OSCChatboxClient: ObservableObject {
         connectionState = .disconnected
     }
 
-    func sendChatboxMessage(_ message: String) {
+    func sendChatboxMessage(_ message: String, playNotificationSound: Bool = true) {
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedMessage.isEmpty else {
             connectionState = .failed(L10n.text("error.empty_message"))
@@ -82,7 +82,10 @@ final class OSCChatboxClient: ObservableObject {
             return
         }
 
-        let payload = OSCMessageEncoder.chatboxInput(trimmedMessage)
+        let payload = OSCMessageEncoder.chatboxInput(
+            trimmedMessage,
+            playNotificationSound: playNotificationSound
+        )
         send(payload)
     }
 

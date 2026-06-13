@@ -18,6 +18,20 @@
 "connect" = "连接";
 "disconnect" = "断开";
 "send.to_vrchat" = "发送到 VRChat";
+"dictation.enter" = "听写模式";
+"dictation.exit" = "退出";
+"dictation.current_result" = "当前识别结果";
+"dictation.no_result" = "正在听写...";
+"dictation.send_records" = "发送记录";
+"dictation.no_records" = "识别后发送到 VRChat 的内容会显示在这里。";
+"dictation.status.ready" = "准备就绪";
+"dictation.status.listening" = "正在听写并发送到 VRChat";
+"dictation.status.restarting" = "正在重启语音识别...";
+"dictation.status.stopped" = "已停止";
+"dictation.error.speech_permission" = "需要允许语音识别权限。";
+"dictation.error.microphone_permission" = "需要允许麦克风权限。";
+"dictation.error.unavailable" = "语音识别暂时不可用。";
+"dictation.error.start_failed" = "无法开始听写：%@";
 
 "toast.sent" = "已发送";
 "toast.connect_first" = "请先连接 VRChat OSC";
@@ -28,6 +42,9 @@
 "history.footer.send_immediately" = "点选历史记录会直接发送消息。";
 "history.footer.fill_message" = "点选历史记录会切回发送界面，并填入输入框。";
 
+"settings.osc.section" = "OSC 设置";
+"settings.message.section" = "消息设置";
+"settings.dictation.section" = "听写设置";
 "settings.auto_connect" = "启动时自动连接 OSC";
 "settings.auto_connect.footer" = "开启后，下次启动会使用上次成功连接时保存的 IP 和端口自动连接。";
 "settings.typing_indicator" = "输入时显示正在输入";
@@ -36,6 +53,10 @@
 "settings.live_preview.footer" = "开启后，在消息输入框中键入文字时会实时显示到 VRChat。";
 "settings.history_immediate" = "点击历史直接发送消息";
 "settings.history_immediate.footer" = "开启后，在发送历史中点选消息会直接发送";
+"settings.message.footer" = "控制手动发送、实时预览、正在输入状态和历史记录行为。";
+"settings.dictation_delay" = "发送延迟";
+"settings.dictation_delay.value" = "%.1f 秒";
+"settings.dictation_delay.footer" = "识别文字和麦克风输入都安静达到这个时长后，听写结果才会发送。";
 
 "about.description" = "通过 VRChat OSC 接口发送 Chatbox 文字消息。";
 "about.version.section" = "版本";

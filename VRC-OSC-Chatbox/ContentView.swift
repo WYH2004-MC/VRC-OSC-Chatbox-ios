@@ -11,6 +11,7 @@ struct ContentView: View {
     @StateObject private var viewModel = ChatboxViewModel()
     @State private var selectedTab: AppTab = .chatbox
     @State private var toastMessage: String?
+    @State private var isShowingDictationMode = false
     @FocusState private var focusedField: Field?
 
     var body: some View {
@@ -87,6 +88,11 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: toastMessage)
+        .fullScreenCover(isPresented: $isShowingDictationMode) {
+            DictationModeView(viewModel: viewModel) {
+                isShowingDictationMode = false
+            }
+        }
     }
 
     private var chatboxForm: some View {
@@ -129,17 +135,36 @@ struct ContentView: View {
                     .lineLimit(3...6)
                     .focused($focusedField, equals: .message)
 
-                Button {
-                    focusedField = nil
-                    if viewModel.sendMessage() {
-                        showToast("toast.sent")
+                VStack(spacing: 10) {
+                    Divider()
+                        .padding(.bottom, 2)
+
+                    Button {
+                        focusedField = nil
+                        if viewModel.sendMessage() {
+                            showToast("toast.sent")
+                        }
+                    } label: {
+                        Label("send.to_vrchat", systemImage: "paperplane.fill")
+                            .frame(maxWidth: .infinity)
                     }
-                } label: {
-                    Label("send.to_vrchat", systemImage: "paperplane.fill")
-                        .frame(maxWidth: .infinity)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!viewModel.canSend)
+
+                    Button {
+                        focusedField = nil
+                        if viewModel.isConnected {
+                            isShowingDictationMode = true
+                        } else {
+                            showToast("toast.connect_first")
+                        }
+                    } label: {
+                        Label("dictation.enter", systemImage: "mic.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(!viewModel.canSend)
+                .listRowSeparator(.hidden)
             }
 
             Section {
@@ -206,26 +231,39 @@ struct ContentView: View {
         Form {
             Section {
                 Toggle("settings.auto_connect", isOn: $viewModel.autoConnectOnLaunch)
+            } header: {
+                Text("settings.osc.section")
             } footer: {
                 Text("settings.auto_connect.footer")
             }
 
             Section {
                 Toggle("settings.typing_indicator", isOn: $viewModel.sendTypingIndicatorEnabled)
-            } footer: {
-                Text("settings.typing_indicator.footer")
-            }
 
-            Section {
                 Toggle("settings.live_preview", isOn: $viewModel.livePreviewEnabled)
+
+                Toggle("settings.history_immediate", isOn: $viewModel.sendHistoryImmediatelyEnabled)
+            } header: {
+                Text("settings.message.section")
             } footer: {
-                Text("settings.live_preview.footer")
+                Text("settings.message.footer")
             }
 
             Section {
-                Toggle("settings.history_immediate", isOn: $viewModel.sendHistoryImmediatelyEnabled)
+                Stepper(value: $viewModel.dictationSendDelay, in: 0.4...3.0, step: 0.1) {
+                    HStack {
+                        Text("settings.dictation_delay")
+
+                        Spacer()
+
+                        Text(L10n.text("settings.dictation_delay.value", viewModel.dictationSendDelay))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } header: {
+                Text("settings.dictation.section")
             } footer: {
-                Text("settings.history_immediate.footer")
+                Text("settings.dictation_delay.footer")
             }
         }
     }
