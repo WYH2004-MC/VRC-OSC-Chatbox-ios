@@ -1,0 +1,85 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+env:
+  PROJECT: VRC-OSC-Chatbox.xcodeproj
+  SCHEME: VRC-OSC-Chatbox
+  CONFIGURATION: Release
+  SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 16
+  ARCHIVE_PATH: build/VRC-OSC-Chatbox.xcarchive
+  IPA_NAME: VRC-OSC-Chatbox.ipa
+
+jobs:
+  build-test-package:
+    name: Build, test, and package IPA
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select latest Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build for testing
+        run: |
+          set -euo pipefail
+          xcodebuild build-for-testing \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "$SIMULATOR_DESTINATION"
+
+      - name: Run tests
+        run: |
+          set -euo pipefail
+          xcodebuild test-without-building \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "$SIMULATOR_DESTINATION"
+
+      - name: Archive app
+        run: |
+          set -euo pipefail
+          xcodebuild archive \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -destination "generic/platform=iOS" \
+            -archivePath "$ARCHIVE_PATH" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+          APP_PATH=$(find "$ARCHIVE_PATH/Products/Applications" -maxdepth 1 -name "*.app" -print -quit)
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app bundle found in archive."
+            exit 1
+          fi
+
+          rm -rf Payload "$IPA_NAME"
+          mkdir Payload
+          cp -R "$APP_PATH" Payload/
+          zip -qry "$IPA_NAME" Payload
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VRC-OSC-Chatbox-unsigned-ipa
+          path: ${{ env.IPA_NAME }}
+          if-no-files-found: error
+          retention-days: 14
