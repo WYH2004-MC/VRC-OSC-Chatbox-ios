@@ -25,7 +25,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select latest Xcode
+      - name: List installed Xcodes
+        run: ls -1 /Applications | grep -E '^Xcode.*\.app$' || true
+
+      - name: Select latest stable Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
