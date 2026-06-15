@@ -314,6 +314,16 @@ struct ContentView: View {
                 LabeledContent("Bundle ID", value: bundleIdentifier)
             }
 
+            Section("about.project.section") {
+                Link(destination: githubProjectURL) {
+                    Label("about.project_repository", systemImage: "chevron.left.forwardslash.chevron.right")
+                }
+
+                Link(destination: githubNewIssueURL) {
+                    Label("about.create_issue", systemImage: "exclamationmark.bubble")
+                }
+            }
+
             Section("about.author.section") {
                 Link(destination: githubProfileURL) {
                     HStack(spacing: 16) {
@@ -347,6 +357,14 @@ struct ContentView: View {
                 }
             }
         }
+    }
+
+    private var githubProjectURL: URL {
+        URL(string: "https://github.com/WYH2004-MC/VRC-OSC-Chatbox-ios")!
+    }
+
+    private var githubNewIssueURL: URL {
+        URL(string: "https://github.com/WYH2004-MC/VRC-OSC-Chatbox-ios/issues/new")!
     }
 
     private var githubProfileURL: URL {

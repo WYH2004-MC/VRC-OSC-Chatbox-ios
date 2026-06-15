@@ -61,7 +61,10 @@
 "about.description" = "通过 VRChat OSC 接口发送 Chatbox 文字消息。";
 "about.version.section" = "版本";
 "about.current_version" = "当前版本";
-"about.author.section" = "作者";
+"about.project.section" = "项目";
+"about.author.section" = "开发团队";
+"about.project_repository" = "GitHub 项目";
+"about.create_issue" = "创建 Issue";
 
 "status.initial" = "输入 VRChat OSC 地址后连接。";
 "status.connecting" = "正在建立 OSC UDP 连接...";

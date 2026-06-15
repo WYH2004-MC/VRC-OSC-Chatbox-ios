@@ -61,7 +61,10 @@
 "about.description" = "Send Chatbox text messages through the VRChat OSC interface.";
 "about.version.section" = "Version";
 "about.current_version" = "Current Version";
-"about.author.section" = "Author";
+"about.project.section" = "Project";
+"about.author.section" = "Development Team";
+"about.project_repository" = "GitHub Project";
+"about.create_issue" = "Create Issue";
 
 "status.initial" = "Enter the VRChat OSC address, then connect.";
 "status.connecting" = "Creating OSC UDP connection...";

@@ -61,7 +61,10 @@
 "about.description" = "VRChat OSC インターフェイス経由で Chatbox のテキストメッセージを送信します。";
 "about.version.section" = "バージョン";
 "about.current_version" = "現在のバージョン";
-"about.author.section" = "作者";
+"about.project.section" = "プロジェクト";
+"about.author.section" = "開発チーム";
+"about.project_repository" = "GitHub プロジェクト";
+"about.create_issue" = "Issue を作成";
 
 "status.initial" = "VRChat OSC アドレスを入力して接続してください。";
 "status.connecting" = "OSC UDP 接続を作成中...";
