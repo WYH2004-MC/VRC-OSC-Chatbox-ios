@@ -6,9 +6,12 @@
 //
 
 import AVFoundation
+import Combine
 import Foundation
+import Network
 import Speech
 import Testing
+import os
 @testable import VRC_OSC_Chatbox
 
 struct VRC_OSC_ChatboxTests {
@@ -201,5 +204,106 @@ struct VRC_OSC_ChatboxTests {
             tap(buffer, time)
             #expect(monitor.lastActivityAt == speechActivity)
         }.value
+    }
+
+    @MainActor
+    @Test(.timeLimit(.minutes(1)))
+    func sendsOSCWithoutRepublishingConnectionAndDisconnectsCleanly() async throws {
+        let receiver = try LocalOSCReceiver()
+        defer { receiver.stop() }
+        let port = try await receiver.start()
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let viewModel = ChatboxViewModel(userDefaults: defaults)
+        defer { viewModel.disconnect() }
+        viewModel.host = "127.0.0.1"
+        viewModel.port = String(port)
+        viewModel.connect()
+        for await state in viewModel.client.$connectionState.values {
+            if case .failed(let error) = state {
+                Issue.record("Connection failed: \(error)")
+                return
+            }
+            if state.isConnected { break }
+        }
+
+        var connectionUpdates = 0
+        let subscription = viewModel.client.$connectionState.dropFirst().sink { _ in
+            connectionUpdates += 1
+        }
+        defer { subscription.cancel() }
+        var packets = receiver.packets.makeAsyncIterator()
+        viewModel.message = "  Hello  "
+        #expect(viewModel.sendMessage())
+        #expect(await packets.next() == OSCMessageEncoder.chatboxInput("Hello"))
+        #expect(viewModel.message.isEmpty)
+        #expect(viewModel.sendHistory == ["Hello"])
+
+        #expect(viewModel.sendTransientMessage("Dictation"))
+        #expect(await packets.next() == OSCMessageEncoder.chatboxInput("Dictation", playNotificationSound: false))
+        #expect(viewModel.sendHistory == ["Hello"])
+        #expect(connectionUpdates == 0)
+
+        viewModel.message = "Typing"
+        viewModel.updateTypingIndicator(isMessageFieldFocused: true)
+        #expect(await packets.next() == OSCMessageEncoder.chatboxTyping(true))
+        viewModel.disconnect()
+        #expect(await packets.next() == OSCMessageEncoder.chatboxTyping(false))
+        // Let already queued completion/state callbacks run after cancellation.
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(viewModel.client.connectionState == .disconnected)
+        #expect(connectionUpdates == 1)
+    }
+}
+
+private final class LocalOSCReceiver {
+    let packets: AsyncStream<Data>
+    private let packetContinuation: AsyncStream<Data>.Continuation
+    private let listener: NWListener
+    private let connections = OSAllocatedUnfairLock(initialState: [NWConnection]())
+
+    init() throws {
+        (packets, packetContinuation) = AsyncStream.makeStream()
+        listener = try NWListener(using: .udp)
+    }
+
+    func start() async throws -> UInt16 {
+        let (ports, continuation) = AsyncThrowingStream<UInt16, Error>.makeStream()
+        listener.stateUpdateHandler = { [weak listener] state in
+            switch state {
+            case .ready:
+                if let port = listener?.port {
+                    continuation.yield(port.rawValue)
+                    continuation.finish()
+                }
+            case .failed(let error):
+                continuation.finish(throwing: error)
+            default:
+                break
+            }
+        }
+        listener.newConnectionHandler = { [connections, packetContinuation] connection in
+            connections.withLock { $0.append(connection) }
+            connection.start(queue: .global())
+            Self.receive(on: connection, into: packetContinuation)
+        }
+        listener.start(queue: .global())
+        var iterator = ports.makeAsyncIterator()
+        return try #require(await iterator.next())
+    }
+
+    func stop() {
+        listener.cancel()
+        connections.withLock { $0.forEach { $0.cancel() } }
+        packetContinuation.finish()
+    }
+
+    private static func receive(on connection: NWConnection, into continuation: AsyncStream<Data>.Continuation) {
+        connection.receiveMessage { data, _, _, error in
+            if let data { continuation.yield(data) }
+            if error == nil {
+                receive(on: connection, into: continuation)
+            }
+        }
     }
 }

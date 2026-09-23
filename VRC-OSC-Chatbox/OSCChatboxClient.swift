@@ -49,9 +49,13 @@ final class OSCChatboxClient: ObservableObject {
             using: .udp
         )
 
-        connection.stateUpdateHandler = { [weak self] state in
-            Task { @MainActor in
-                self?.handle(state)
+        connection.stateUpdateHandler = { [weak self, weak connection] state in
+            Task { @MainActor [weak self, weak connection] in
+                guard let self, let connection, self.connection === connection else {
+                    return
+                }
+
+                self.handle(state)
             }
         }
 
@@ -60,14 +64,24 @@ final class OSCChatboxClient: ObservableObject {
     }
 
     func disconnect() {
-        if connectionState.isConnected {
-            sendTypingIndicator(false)
+        if let connection {
+            connection.stateUpdateHandler = nil
+            if connectionState.isConnected {
+                // Let the final typing update leave the send queue before cancelling it.
+                connection.send(
+                    content: OSCMessageEncoder.chatboxTyping(false),
+                    completion: .contentProcessed { _ in connection.cancel() }
+                )
+            } else {
+                connection.cancel()
+            }
         }
 
-        connection?.cancel()
         connection = nil
         endpointDescription = ""
-        connectionState = .disconnected
+        if connectionState != .disconnected {
+            connectionState = .disconnected
+        }
     }
 
     func sendChatboxMessage(_ message: String, playNotificationSound: Bool = true) {
@@ -77,7 +91,7 @@ final class OSCChatboxClient: ObservableObject {
             return
         }
 
-        guard connectionState.isConnected else {
+        guard let connection, connectionState.isConnected else {
             connectionState = .failed(L10n.text("error.connect_first"))
             return
         }
@@ -86,7 +100,19 @@ final class OSCChatboxClient: ObservableObject {
             trimmedMessage,
             playNotificationSound: playNotificationSound
         )
-        send(payload)
+        connection.send(content: payload, completion: .contentProcessed { [weak self, weak connection] error in
+            guard let error else {
+                return
+            }
+
+            Task { @MainActor [weak self, weak connection] in
+                guard let self, let connection, self.connection === connection else {
+                    return
+                }
+
+                self.connectionState = .failed(L10n.text("error.send_failed", error.localizedDescription))
+            }
+        })
     }
 
     func previewChatboxMessage(_ message: String) {
@@ -110,27 +136,6 @@ final class OSCChatboxClient: ObservableObject {
 
         let payload = OSCMessageEncoder.chatboxTyping(isTyping)
         connection.send(content: payload, completion: .contentProcessed { _ in })
-    }
-
-    private func send(_ payload: Data) {
-        guard let connection, connectionState.isConnected else {
-            connectionState = .failed(L10n.text("error.connect_first"))
-            return
-        }
-
-        connection.send(content: payload, completion: .contentProcessed { [weak self] error in
-            Task { @MainActor in
-                guard let self else {
-                    return
-                }
-
-                if let error {
-                    self.connectionState = .failed(L10n.text("error.send_failed", error.localizedDescription))
-                } else {
-                    self.connectionState = .connected(self.endpointDescription)
-                }
-            }
-        })
     }
 
     private func handle(_ state: NWConnection.State) {

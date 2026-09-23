@@ -77,6 +77,7 @@ final class ChatboxViewModel: ObservableObject {
             .store(in: &cancellables)
 
         client.$connectionState
+            .removeDuplicates()
             .dropFirst()
             .sink { [weak self] connectionState in
                 self?.syncSendStatus(with: connectionState)
@@ -112,7 +113,7 @@ final class ChatboxViewModel: ObservableObject {
     }
 
     func disconnect() {
-        updateTypingIndicator(isMessageFieldFocused: false)
+        isTypingIndicatorActive = false
         lastPreviewedMessage = nil
         client.disconnect()
         sendStatus = L10n.text("status.disconnected")
