@@ -11,14 +11,14 @@ env:
   PROJECT: VRC-OSC-Chatbox.xcodeproj
   SCHEME: VRC-OSC-Chatbox
   CONFIGURATION: Release
-  SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 16
+  SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 17
   ARCHIVE_PATH: build/VRC-OSC-Chatbox.xcarchive
   IPA_NAME: VRC-OSC-Chatbox.ipa
 
 jobs:
   build-test-package:
     name: Build, test, and package IPA
-    runs-on: macos-latest
+    runs-on: xcode-27
     timeout-minutes: 45
 
     steps:
@@ -28,10 +28,10 @@ jobs:
       - name: List installed Xcodes
         run: ls -1 /Applications | grep -E '^Xcode.*\.app$' || true
 
-      - name: Select latest stable Xcode
+      - name: Select latest available Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          xcode-version: latest
 
       - name: Show Xcode version
         run: xcodebuild -version
