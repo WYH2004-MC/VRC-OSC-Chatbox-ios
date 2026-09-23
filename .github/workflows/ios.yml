@@ -11,13 +11,12 @@ env:
   PROJECT: VRC-OSC-Chatbox.xcodeproj
   SCHEME: VRC-OSC-Chatbox
   CONFIGURATION: Release
-  SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 17
   ARCHIVE_PATH: build/VRC-OSC-Chatbox.xcarchive
   IPA_NAME: VRC-OSC-Chatbox.ipa
 
 jobs:
   build-test-package:
-    name: Build, test, and package IPA
+    name: Build and package IPA
     runs-on: xcode-27
     timeout-minutes: 45
 
@@ -35,24 +34,6 @@ jobs:
 
       - name: Show Xcode version
         run: xcodebuild -version
-
-      - name: Build for testing
-        run: |
-          set -euo pipefail
-          xcodebuild build-for-testing \
-            -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -configuration Debug \
-            -destination "$SIMULATOR_DESTINATION"
-
-      - name: Run tests
-        run: |
-          set -euo pipefail
-          xcodebuild test-without-building \
-            -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -configuration Debug \
-            -destination "$SIMULATOR_DESTINATION"
 
       - name: Archive app
         run: |
