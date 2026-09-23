@@ -41,7 +41,7 @@ final class ChatboxViewModel: ObservableObject {
         }
     }
     @Published private(set) var sendHistory: [String] = []
-    @Published private(set) var client = OSCChatboxClient()
+    let client = OSCChatboxClient()
 
     private let sendHistoryLimit = 30
     private let sendHistoryKey = "sendHistory"
@@ -121,56 +121,42 @@ final class ChatboxViewModel: ObservableObject {
 
     @discardableResult
     func sendMessage() -> Bool {
-        let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedMessage.isEmpty else {
-            sendStatus = L10n.text("error.empty_message")
+        guard let sentMessage = send(message, playNotificationSound: true) else {
             return false
         }
 
-        guard isConnected else {
-            sendStatus = L10n.text("error.connect_first")
-            return false
-        }
-
-        client.sendChatboxMessage(trimmedMessage)
         updateTypingIndicator(isMessageFieldFocused: false)
         lastPreviewedMessage = nil
-        recordSentMessage(trimmedMessage)
-        sendStatus = L10n.text("status.sent")
+        recordSentMessage(sentMessage)
         message = ""
         return true
     }
 
     @discardableResult
     func sendTransientMessage(_ message: String, playNotificationSound: Bool = false) -> Bool {
+        send(message, playNotificationSound: playNotificationSound) != nil
+    }
+
+    private func send(_ message: String, playNotificationSound: Bool) -> String? {
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedMessage.isEmpty else {
             sendStatus = L10n.text("error.empty_message")
-            return false
+            return nil
         }
 
         guard isConnected else {
             sendStatus = L10n.text("error.connect_first")
-            return false
+            return nil
         }
 
         client.sendChatboxMessage(trimmedMessage, playNotificationSound: playNotificationSound)
         sendStatus = L10n.text("status.sent")
-        return true
-    }
-
-    func useHistoryItem(_ historyItem: String) {
-        message = historyItem
+        return trimmedMessage
     }
 
     func handleHistorySelection(_ historyItem: String) -> Bool {
-        guard sendHistoryImmediatelyEnabled else {
-            useHistoryItem(historyItem)
-            return false
-        }
-
         message = historyItem
-        return sendMessage()
+        return sendHistoryImmediatelyEnabled && sendMessage()
     }
 
     func updateTypingIndicator(isMessageFieldFocused: Bool) {
@@ -188,12 +174,12 @@ final class ChatboxViewModel: ObservableObject {
     }
 
     func updateLivePreview(isMessageFieldFocused: Bool) {
-        let previewMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard isConnected, livePreviewEnabled, isMessageFieldFocused else {
             lastPreviewedMessage = nil
             return
         }
 
+        let previewMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard previewMessage != lastPreviewedMessage else {
             return
         }
@@ -208,13 +194,11 @@ final class ChatboxViewModel: ObservableObject {
     }
 
     func recordSentMessage(_ sentMessage: String) {
-        sendHistory.removeAll { $0 == sentMessage }
-        sendHistory.insert(sentMessage, at: 0)
-
-        if sendHistory.count > sendHistoryLimit {
-            sendHistory.removeLast(sendHistory.count - sendHistoryLimit)
+        guard sendHistory.first != sentMessage else {
+            return
         }
 
+        sendHistory = [sentMessage] + sendHistory.filter { $0 != sentMessage }.prefix(sendHistoryLimit - 1)
         saveHistory()
     }
 

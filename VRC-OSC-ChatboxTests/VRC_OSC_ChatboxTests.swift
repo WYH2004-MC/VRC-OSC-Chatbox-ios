@@ -177,6 +177,31 @@ struct VRC_OSC_ChatboxTests {
         #expect(userDefaults.bool(forKey: "sendHistoryImmediatelyEnabled") == true)
     }
 
+    @MainActor
+    @Test func selectingHistoryWithoutImmediateSendOnlyFillsTheMessage() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let viewModel = ChatboxViewModel(userDefaults: defaults)
+
+        #expect(!viewModel.handleHistorySelection("Saved message"))
+        #expect(viewModel.message == "Saved message")
+        #expect(viewModel.sendHistory.isEmpty)
+    }
+
+    @MainActor
+    @Test func failedSendPreservesTheDraftAndHistory() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let viewModel = ChatboxViewModel(userDefaults: defaults)
+        viewModel.message = "Draft"
+
+        #expect(!viewModel.sendMessage())
+        #expect(viewModel.message == "Draft")
+        #expect(viewModel.sendHistory.isEmpty)
+        #expect(!viewModel.sendTransientMessage("   \n"))
+        #expect(viewModel.message == "Draft")
+    }
+
     @Test func audioActivityIgnoresSilenceAndAcceptsSpeechOffTheMainThread() async throws {
         let monitor = AudioActivityMonitor()
         let initialActivity = monitor.lastActivityAt
