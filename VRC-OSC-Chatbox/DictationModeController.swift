@@ -30,6 +30,7 @@ final class DictationModeController: ObservableObject {
     private var audioActivity = AudioActivityMonitor()
     private var originalBrightness = UIScreen.main.brightness
     private var originalIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
+    private var isDisplayModeActive = false
     private var brightenTask: Task<Void, Never>?
 
     init(viewModel: ChatboxViewModel) {
@@ -38,6 +39,16 @@ final class DictationModeController: ObservableObject {
 
     func start() {
         guard !isRunning else {
+            return
+        }
+
+        guard SFSpeechRecognizer.authorizationStatus() == .authorized else {
+            statusText = L10n.text("dictation.error.speech_permission")
+            return
+        }
+
+        guard AVAudioApplication.shared.recordPermission == .granted else {
+            statusText = L10n.text("dictation.error.microphone_permission")
             return
         }
 
@@ -51,9 +62,7 @@ final class DictationModeController: ObservableObject {
         restartTask = nil
         enterDisplayMode()
 
-        Task {
-            await requestPermissionsAndStart()
-        }
+        startRecognition()
     }
 
     func stop() {
@@ -92,38 +101,6 @@ final class DictationModeController: ObservableObject {
             }
 
             UIScreen.main.brightness = 0
-        }
-    }
-
-    private func requestPermissionsAndStart() async {
-        let speechAuthorized = await requestSpeechAuthorization()
-        guard speechAuthorized else {
-            statusText = L10n.text("dictation.error.speech_permission")
-            return
-        }
-
-        let microphoneAuthorized = await requestMicrophoneAuthorization()
-        guard microphoneAuthorized else {
-            statusText = L10n.text("dictation.error.microphone_permission")
-            return
-        }
-
-        startRecognition()
-    }
-
-    private func requestSpeechAuthorization() async -> Bool {
-        await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { status in
-                continuation.resume(returning: status == .authorized)
-            }
-        }
-    }
-
-    private func requestMicrophoneAuthorization() async -> Bool {
-        await withCheckedContinuation { continuation in
-            AVAudioApplication.requestRecordPermission { isGranted in
-                continuation.resume(returning: isGranted)
-            }
         }
     }
 
@@ -316,6 +293,7 @@ final class DictationModeController: ObservableObject {
     private func enterDisplayMode() {
         originalBrightness = UIScreen.main.brightness
         originalIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
+        isDisplayModeActive = true
         UIApplication.shared.isIdleTimerDisabled = true
         UIScreen.main.brightness = 0
     }
@@ -323,6 +301,8 @@ final class DictationModeController: ObservableObject {
     private func restoreDisplayMode() {
         brightenTask?.cancel()
         brightenTask = nil
+        guard isDisplayModeActive else { return }
+        isDisplayModeActive = false
         UIScreen.main.brightness = originalBrightness
         UIApplication.shared.isIdleTimerDisabled = originalIdleTimerDisabled
     }

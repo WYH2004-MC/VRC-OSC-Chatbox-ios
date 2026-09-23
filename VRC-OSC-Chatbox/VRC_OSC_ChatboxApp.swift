@@ -9,9 +9,19 @@ import SwiftUI
 
 @main
 struct VRC_OSC_ChatboxApp: App {
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var permissions = StartupPermissionController()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onChange(of: scenePhase, initial: true) { _, phase in
+                    if phase == .active {
+                        Task {
+                            await permissions.requestOnLaunch()
+                        }
+                    }
+                }
         }
     }
 }
