@@ -379,6 +379,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "VRC ChatBox";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "用于连接 VRChat OSC 接口并发送 Chatbox 消息。";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "用于听取你的语音，并把识别出的文字发送到 VRChat。";
@@ -422,6 +423,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "VRC ChatBox";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "用于连接 VRChat OSC 接口并发送 Chatbox 消息。";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "用于听取你的语音，并把识别出的文字发送到 VRChat。";
