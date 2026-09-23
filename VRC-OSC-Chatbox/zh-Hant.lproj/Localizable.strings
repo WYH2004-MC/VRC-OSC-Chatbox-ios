@@ -48,11 +48,8 @@
 "settings.auto_connect" = "啟動時自動連線 OSC";
 "settings.auto_connect.footer" = "開啟後，下次啟動會使用上次成功連線時儲存的 IP 和連接埠自動連線。";
 "settings.typing_indicator" = "輸入時顯示正在輸入";
-"settings.typing_indicator.footer" = "開啟後，在訊息輸入框中輸入文字時會在 VRChat 顯示正在輸入提示。";
 "settings.live_preview" = "即時預覽輸入文字";
-"settings.live_preview.footer" = "開啟後，在訊息輸入框中鍵入文字時會即時顯示到 VRChat。";
 "settings.history_immediate" = "點擊記錄直接傳送訊息";
-"settings.history_immediate.footer" = "開啟後，在傳送記錄中點選訊息會直接傳送";
 "settings.message.footer" = "控制手動傳送、即時預覽、正在輸入狀態和歷史記錄行為。";
 "settings.dictation_delay" = "傳送延遲";
 "settings.dictation_delay.value" = "%.1f 秒";

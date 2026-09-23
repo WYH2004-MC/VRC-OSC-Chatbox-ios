@@ -48,11 +48,8 @@
 "settings.auto_connect" = "Auto-connect to OSC on launch";
 "settings.auto_connect.footer" = "When enabled, the app will use the saved IP address and port from the last successful connection next time it launches.";
 "settings.typing_indicator" = "Show typing while entering text";
-"settings.typing_indicator.footer" = "When enabled, VRChat shows the typing indicator while you type in the message field.";
 "settings.live_preview" = "Live preview typed text";
-"settings.live_preview.footer" = "When enabled, text typed in the message field is displayed live in VRChat.";
 "settings.history_immediate" = "Send message when tapping history";
-"settings.history_immediate.footer" = "When enabled, selecting a message in send history sends it immediately.";
 "settings.message.footer" = "Controls manual sending, live preview, typing status, and history behavior.";
 "settings.dictation_delay" = "Send delay";
 "settings.dictation_delay.value" = "%.1f sec";

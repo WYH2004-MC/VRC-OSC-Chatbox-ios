@@ -48,11 +48,8 @@
 "settings.auto_connect" = "起動時に OSC へ自動接続";
 "settings.auto_connect.footer" = "有効にすると、次回起動時に前回成功した接続の IP アドレスとポートで自動接続します。";
 "settings.typing_indicator" = "入力中インジケーターを表示";
-"settings.typing_indicator.footer" = "有効にすると、メッセージ入力中に VRChat で入力中インジケーターを表示します。";
 "settings.live_preview" = "入力テキストをライブプレビュー";
-"settings.live_preview.footer" = "有効にすると、メッセージ欄に入力したテキストを VRChat にリアルタイム表示します。";
 "settings.history_immediate" = "履歴をタップして即送信";
-"settings.history_immediate.footer" = "有効にすると、送信履歴のメッセージを選択した時点で送信します。";
 "settings.message.footer" = "手動送信、ライブプレビュー、入力中表示、履歴の動作を設定します。";
 "settings.dictation_delay" = "送信遅延";
 "settings.dictation_delay.value" = "%.1f 秒";

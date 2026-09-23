@@ -48,11 +48,8 @@
 "settings.auto_connect" = "启动时自动连接 OSC";
 "settings.auto_connect.footer" = "开启后，下次启动会使用上次成功连接时保存的 IP 和端口自动连接。";
 "settings.typing_indicator" = "输入时显示正在输入";
-"settings.typing_indicator.footer" = "开启后，在消息输入框中输入文字时会在 VRChat 显示正在输入提示。";
 "settings.live_preview" = "实时预览输入文字";
-"settings.live_preview.footer" = "开启后，在消息输入框中键入文字时会实时显示到 VRChat。";
 "settings.history_immediate" = "点击历史直接发送消息";
-"settings.history_immediate.footer" = "开启后，在发送历史中点选消息会直接发送";
 "settings.message.footer" = "控制手动发送、实时预览、正在输入状态和历史记录行为。";
 "settings.dictation_delay" = "发送延迟";
 "settings.dictation_delay.value" = "%.1f 秒";
