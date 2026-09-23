@@ -10,32 +10,30 @@ import XCTest
 final class VRC_OSC_ChatboxUITests: XCTestCase {
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testDraftSurvivesTabSwitching() throws {
         let app = XCUIApplication()
+        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
+        let messageField = app.descendants(matching: .any)["chatbox.message"]
+        XCTAssertTrue(messageField.waitForExistence(timeout: 5))
+        messageField.tap()
+        messageField.typeText("Draft message")
+        app.buttons["Done"].tap()
+        app.tabBars.buttons["History"].tap()
+        XCTAssertTrue(app.navigationBars["Send History"].exists)
+        app.tabBars.buttons["Settings"].tap()
+        XCTAssertTrue(app.switches["Live preview typed text"].exists)
+        app.tabBars.buttons["Send"].tap()
+        XCTAssertEqual(messageField.value as? String, "Draft message")
     }
 
     @MainActor
     func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {
             XCUIApplication().launch()
         }

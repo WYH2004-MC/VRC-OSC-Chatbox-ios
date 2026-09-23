@@ -132,6 +132,7 @@ struct ContentView: View {
 
             Section("section.message") {
                 TextField("field.message.placeholder", text: $viewModel.message, axis: .vertical)
+                    .accessibilityIdentifier("chatbox.message")
                     .lineLimit(3...6)
                     .focused($focusedField, equals: .message)
 
