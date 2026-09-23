@@ -1,8 +1,9 @@
+import Accelerate
 import AVFoundation
 import Combine
 import Speech
-import SwiftUI
 import UIKit
+import os
 
 @MainActor
 final class DictationModeController: ObservableObject {
@@ -23,12 +24,10 @@ final class DictationModeController: ObservableObject {
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private var sentTranscript = ""
-    private var isStopping = false
     private var pendingSendTask: Task<Void, Never>?
     private var restartTask: Task<Void, Never>?
     private var recognitionGeneration = 0
-    private var lastAudioActivityAt = Date.distantPast
-    private let audioActivityThreshold: Float = 0.015
+    private var audioActivity = AudioActivityMonitor()
     private var originalBrightness = UIScreen.main.brightness
     private var originalIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
     private var brightenTask: Task<Void, Never>?
@@ -43,7 +42,6 @@ final class DictationModeController: ObservableObject {
         }
 
         isRunning = true
-        isStopping = false
         recognizedText = ""
         sendRecords = []
         sentTranscript = ""
@@ -51,7 +49,6 @@ final class DictationModeController: ObservableObject {
         pendingSendTask = nil
         restartTask?.cancel()
         restartTask = nil
-        lastAudioActivityAt = .now
         enterDisplayMode()
 
         Task {
@@ -65,7 +62,6 @@ final class DictationModeController: ObservableObject {
             return
         }
 
-        isStopping = true
         isRunning = false
         recognitionGeneration += 1
         pendingSendTask?.cancel()
@@ -91,17 +87,11 @@ final class DictationModeController: ObservableObject {
                 return
             }
 
-            guard !Task.isCancelled else {
+            guard !Task.isCancelled, let self, self.isRunning else {
                 return
             }
 
-            await MainActor.run {
-                guard let self, self.isRunning else {
-                    return
-                }
-
-                UIScreen.main.brightness = 0
-            }
+            UIScreen.main.brightness = 0
         }
     }
 
@@ -131,20 +121,14 @@ final class DictationModeController: ObservableObject {
 
     private func requestMicrophoneAuthorization() async -> Bool {
         await withCheckedContinuation { continuation in
-            if #available(iOS 17.0, *) {
-                AVAudioApplication.requestRecordPermission { isGranted in
-                    continuation.resume(returning: isGranted)
-                }
-            } else {
-                AVAudioSession.sharedInstance().requestRecordPermission { isGranted in
-                    continuation.resume(returning: isGranted)
-                }
+            AVAudioApplication.requestRecordPermission { isGranted in
+                continuation.resume(returning: isGranted)
             }
         }
     }
 
     private func startRecognition() {
-        guard isRunning, !isStopping else {
+        guard isRunning else {
             return
         }
 
@@ -171,23 +155,24 @@ final class DictationModeController: ObservableObject {
             let request = SFSpeechAudioBufferRecognitionRequest()
             request.shouldReportPartialResults = true
             recognitionRequest = request
+            let audioActivity = AudioActivityMonitor()
+            self.audioActivity = audioActivity
 
             let inputNode = audioEngine.inputNode
             let recordingFormat = inputNode.outputFormat(forBus: 0)
-            inputNode.removeTap(onBus: 0)
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-                Task { @MainActor in
-                    self?.updateAudioActivity(with: buffer)
-                    self?.recognitionRequest?.append(buffer)
-                }
-            }
+            inputNode.installTap(
+                onBus: 0,
+                bufferSize: 1024,
+                format: recordingFormat,
+                block: audioActivity.makeTap(for: request)
+            )
 
             audioEngine.prepare()
             try audioEngine.start()
             statusText = L10n.text("dictation.status.listening")
 
             recognitionTask = speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     self?.handleRecognition(result: result, error: error, generation: generation)
                 }
             }
@@ -208,7 +193,9 @@ final class DictationModeController: ObservableObject {
 
         if let result {
             let transcript = result.bestTranscription.formattedString
-            recognizedText = transcript
+            if recognizedText != transcript {
+                recognizedText = transcript
+            }
 
             if result.isFinal {
                 _ = sendRecognizedText(transcript)
@@ -226,29 +213,24 @@ final class DictationModeController: ObservableObject {
     private func scheduleSend(for text: String) {
         pendingSendTask?.cancel()
         let generation = recognitionGeneration
+        let delay = viewModel.dictationSendDelay
         pendingSendTask = Task { [weak self] in
             do {
-                try await Task.sleep(for: .milliseconds(Int(self?.sendDelayMilliseconds ?? 1000)))
+                try await Task.sleep(for: .seconds(delay))
             } catch {
                 return
             }
 
-            guard !Task.isCancelled else {
+            guard !Task.isCancelled, let self, generation == self.recognitionGeneration else {
                 return
             }
 
-            await MainActor.run {
-                guard let self, generation == self.recognitionGeneration else {
-                    return
-                }
-
-                self.sendRecognizedTextAfterSilence(text)
-            }
+            self.sendRecognizedTextAfterSilence(text)
         }
     }
 
     private func sendRecognizedTextAfterSilence(_ text: String) {
-        let quietDuration = Date.now.timeIntervalSince(lastAudioActivityAt)
+        let quietDuration = Date.now.timeIntervalSince(audioActivity.lastActivityAt)
         guard quietDuration >= viewModel.dictationSendDelay else {
             scheduleSend(for: text)
             return
@@ -289,34 +271,8 @@ final class DictationModeController: ObservableObject {
         return true
     }
 
-    private func updateAudioActivity(with buffer: AVAudioPCMBuffer) {
-        guard let channelData = buffer.floatChannelData?[0] else {
-            return
-        }
-
-        let frameLength = Int(buffer.frameLength)
-        guard frameLength > 0 else {
-            return
-        }
-
-        var sum: Float = 0
-        for frame in 0..<frameLength {
-            let sample = channelData[frame]
-            sum += sample * sample
-        }
-
-        let rootMeanSquare = sqrt(sum / Float(frameLength))
-        if rootMeanSquare > audioActivityThreshold {
-            lastAudioActivityAt = .now
-        }
-    }
-
-    private var sendDelayMilliseconds: Int {
-        Int(viewModel.dictationSendDelay * 1000)
-    }
-
     private func scheduleRestart() {
-        guard isRunning, !isStopping else {
+        guard isRunning else {
             return
         }
 
@@ -340,9 +296,7 @@ final class DictationModeController: ObservableObject {
                 return
             }
 
-            await MainActor.run {
-                self?.startRecognition()
-            }
+            self?.startRecognition()
         }
     }
 
@@ -371,5 +325,34 @@ final class DictationModeController: ObservableObject {
         brightenTask = nil
         UIScreen.main.brightness = originalBrightness
         UIApplication.shared.isIdleTimerDisabled = originalIdleTimerDisabled
+    }
+}
+
+// Each recognition session owns a monitor so old audio cannot affect a new session.
+nonisolated final class AudioActivityMonitor: Sendable {
+    private let lastActivity = OSAllocatedUnfairLock(initialState: Date.now)
+
+    var lastActivityAt: Date {
+        lastActivity.withLock { $0 }
+    }
+
+    // Create the callback outside MainActor isolation; audio delivery must not hop to the UI thread.
+    func makeTap(for request: SFSpeechAudioBufferRecognitionRequest) -> AVAudioNodeTapBlock {
+        { [self] buffer, _ in
+            record(buffer)
+            request.append(buffer)
+        }
+    }
+
+    func record(_ buffer: AVAudioPCMBuffer) {
+        guard buffer.frameLength > 0, let channelData = buffer.floatChannelData?[0] else {
+            return
+        }
+
+        var rootMeanSquare: Float = 0
+        vDSP_rmsqv(channelData, vDSP_Stride(buffer.stride), &rootMeanSquare, vDSP_Length(buffer.frameLength))
+        if rootMeanSquare > 0.015 {
+            lastActivity.withLock { $0 = .now }
+        }
     }
 }

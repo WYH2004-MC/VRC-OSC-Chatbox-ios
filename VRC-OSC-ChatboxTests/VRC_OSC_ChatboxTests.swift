@@ -5,7 +5,9 @@
 //  Created by WYH2004 on 2026/6/12.
 //
 
+import AVFoundation
 import Foundation
+import Speech
 import Testing
 @testable import VRC_OSC_Chatbox
 
@@ -172,4 +174,32 @@ struct VRC_OSC_ChatboxTests {
         #expect(userDefaults.bool(forKey: "sendHistoryImmediatelyEnabled") == true)
     }
 
+    @Test func audioActivityIgnoresSilenceAndAcceptsSpeechOffTheMainThread() async throws {
+        let monitor = AudioActivityMonitor()
+        let initialActivity = monitor.lastActivityAt
+        try await Task.detached {
+            let format = try #require(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+            let buffer = try #require(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 1024))
+            let samples = try #require(buffer.floatChannelData?[0])
+            let tap = monitor.makeTap(for: SFSpeechAudioBufferRecognitionRequest())
+            let time = AVAudioTime(sampleTime: 0, atRate: 48_000)
+
+            monitor.record(buffer)
+            #expect(monitor.lastActivityAt == initialActivity)
+
+            buffer.frameLength = 1024
+            samples.update(repeating: 0.01, count: 1024)
+            tap(buffer, time)
+            #expect(monitor.lastActivityAt == initialActivity)
+
+            samples.update(repeating: 0.02, count: 1024)
+            tap(buffer, time)
+            let speechActivity = monitor.lastActivityAt
+            #expect(speechActivity > initialActivity)
+
+            samples.update(repeating: 0, count: 1024)
+            tap(buffer, time)
+            #expect(monitor.lastActivityAt == speechActivity)
+        }.value
+    }
 }
